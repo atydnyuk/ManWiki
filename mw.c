@@ -69,8 +69,7 @@ void display_entry(char *arg1)
 void display_menu()
 {
   WINDOW *menu_win;
-  int highlight=1;
-  int choice =0;
+  int highlight= 1;
   int c;
   char *choices[] = {"Lookup Term","Random Page","Configuration","About","Exit"};
   int n_choices = sizeof(choices)/sizeof(char *);
@@ -109,8 +108,6 @@ void display_menu()
 	    ++highlight;
 	  break;
 	case 10:
-	  /*you pressed enter*/
-	  choice = highlight;
 	  if (highlight==1)
 	    {
 	      /*if you want to search, a
