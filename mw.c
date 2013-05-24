@@ -6,6 +6,7 @@
 #include<fcntl.h>
 #include<menu.h>
 #include<form.h>
+#include<sys/wait.h>
 
 #define MAX_SIZE 1024
 
@@ -153,21 +154,24 @@ void display_menu() {
 
 void getFile(char* arg1,char *outname) {
   int i;
-  char *command = malloc(strlen("./getPage.pl ")+
-						 strlen(arg1)+
-						 strlen(" >")+
-						 strlen(outname)+3);
-  
-  strcpy(command, "./getPage.pl ");
-  strcat(command, arg1);
-  strcat(command, " >");
-  strcat(command, outname);
-  
-  i = system(command);
-  if (i==-1) {
-	perror("System call failed");
+  char *args[] = {arg1};
+  int fd = open(outname, O_WRONLY );
+  close(1);  // existing stdout is no more
+  int err = dup(fd);  // stdout is now fd
+  if (err==-1) {
+	perror("dup errored\n");
   }
-  free(command);
+  int k = fork();
+  if (k==0) {
+	printf("About to exec\n");
+	i = execve("./getPage.pl",args,NULL);
+	if (i==-1) {
+	  perror("execve call failed\n");
+	}
+  } else {
+	wait(0);
+  }
+  
 }
 
 void print_menu(WINDOW *menu_win,int highlight,char **choices, int n_choices) {
