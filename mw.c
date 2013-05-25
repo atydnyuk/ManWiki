@@ -7,18 +7,19 @@
 #include<menu.h>
 #include<form.h>
 #include<sys/wait.h>
+#include<curl/curl.h>
 
 #define MAX_SIZE 1024
-
 
 void display_entry(char *arg1);
 void display_single_entry(char *arg1);
 void display_menu();
-void getFile(char* arg1,char *outname);
+void getFile(char* arg1);
 void print_menu(WINDOW *menu_win,int highlight,char **choices, int n_choices);
 void print_prompt(WINDOW *menu_win);
 void print_about(WINDOW *menu_win);
 void print_usage();
+void download_page(char* arg);
 
 char *string_input; 
 
@@ -40,34 +41,15 @@ int main(int argc, char **argv) {
 void display_single_entry(char *arg1) {
   char *buffer = malloc(MAX_SIZE);
   char *outname = "outfile";
-  int i, fd;
-  getFile(arg1, outname);
-  fd = open(outname, O_RDONLY);
-  i = read(fd,buffer, MAX_SIZE-1);
-  if (i == -1) {
-	perror("Read call failed");
-  }
-  i = system("less outfile");
-  if (i == -1) {
-	perror("less call failed");
-  }
+  printf("before getfile args: %s , %s\n",arg1,outname);
+  getFile(arg1);
   free(buffer);
 }
 
 void display_entry(char *arg1) {
   char *buffer = malloc(MAX_SIZE);
   char *outname = "outfile";
-  int i, fd;
-  getFile(arg1, outname);
-  fd = open(outname, O_RDONLY);
-  i = read(fd,buffer, MAX_SIZE-1);
-  if (i == -1) {
-	perror("Read call failed");
-  }
-  i = system("less outfile");
-  if (i == -1) {
-	perror("less call failed");
-  }
+  getFile(arg1);
   free(buffer);
   display_menu();
 }
@@ -131,7 +113,7 @@ void display_menu() {
 		delwin(menu_win);
 		free(string_input);
 		clear();
-		endwin();	      
+		endwin();
 		return;
 	  }
 	  else {
@@ -142,7 +124,7 @@ void display_menu() {
 	default: 
 	  refresh();
 	  break;
-	}	
+	}
 	print_menu(menu_win, highlight,choices,n_choices);
   }
   clrtoeol();
@@ -151,27 +133,34 @@ void display_menu() {
   return;
 }
 
-
-void getFile(char* arg1,char *outname) {
-  int i;
-  char *args[] = {arg1};
-  int fd = open(outname, O_WRONLY );
-  close(1);  // existing stdout is no more
-  int err = dup(fd);  // stdout is now fd
-  if (err==-1) {
-	perror("dup errored\n");
-  }
+void getFile(char* arg1) {
   int k = fork();
   if (k==0) {
-	printf("About to exec\n");
-	i = execve("./getPage.pl",args,NULL);
-	if (i==-1) {
-	  perror("execve call failed\n");
-	}
+	//download the page
+	download_page(arg1);
   } else {
 	wait(0);
   }
   
+}
+
+void download_page(char * arg) {
+  CURL *curl;
+  CURLcode res;
+  curl = curl_easy_init();
+  char* url = calloc(sizeof(char)*(strlen(arg) + 30),0);
+  if (curl) {
+	strcpy(url,"http://en.wikipedia.org/wiki/");
+	strcat(url,arg);
+	//printf("the url is %s\n",url);
+	curl_easy_setopt(curl, CURLOPT_URL, url);
+	res = curl_easy_perform(curl);
+	if (res != CURLE_OK)
+	  fprintf(stderr, "curl_easy_perform() failed: %s\n",
+			  curl_easy_strerror(res));
+	curl_easy_cleanup(curl);
+  }
+  free(url);
 }
 
 void print_menu(WINDOW *menu_win,int highlight,char **choices, int n_choices) {
