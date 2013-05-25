@@ -37,6 +37,6 @@ window later..
 2) Include a config file for different random options like colors
 3) Format the page better, and actually return the article text as opposed
    to everything on the sidebar, and all of the other extra info.
-4) Some extra functionality in the text viewer (want to avoid having to use less)
+4) Fix the colors so stuff works after closing
 5) Fix up the makefile to include dependencies, and some more options
 6) Remove the need for an outfile, or delete it after program exits.
