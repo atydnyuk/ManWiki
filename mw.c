@@ -39,18 +39,11 @@ int main(int argc, char **argv) {
  *is run to grab the entry, and then you read the 
  *entry from the outfile using less*/
 void display_single_entry(char *arg1) {
-  char *buffer = malloc(MAX_SIZE);
-  char *outname = "outfile";
-  printf("before getfile args: %s , %s\n",arg1,outname);
   getFile(arg1);
-  free(buffer);
 }
 
 void display_entry(char *arg1) {
-  char *buffer = malloc(MAX_SIZE);
-  char *outname = "outfile";
   getFile(arg1);
-  free(buffer);
   display_menu();
 }
 
@@ -134,33 +127,33 @@ void display_menu() {
 }
 
 void getFile(char* arg1) {
-  int k = fork();
-  if (k==0) {
-	//download the page
-	download_page(arg1);
-  } else {
-	wait(0);
-  }
-  
+  //int k = fork();
+  //if (k==0) {
+  //download the page
+  download_page(arg1);
+  //} else {
+  //	wait(0);
+  // }
 }
 
 void download_page(char * arg) {
   CURL *curl;
   CURLcode res;
   curl = curl_easy_init();
-  char* url = calloc(sizeof(char)*(strlen(arg) + 30),0);
+  char* myurl = calloc(sizeof(char)*(strlen(arg) + 41),0);
   if (curl) {
-	strcpy(url,"http://en.wikipedia.org/wiki/");
-	strcat(url,arg);
-	//printf("the url is %s\n",url);
-	curl_easy_setopt(curl, CURLOPT_URL, url);
+	strcpy(myurl,"http://en.wikipedia.org/wiki/");
+	strcat(myurl,arg);
+	printf("the url is %s\n",myurl);
+	curl_easy_setopt(curl, CURLOPT_URL, myurl);
 	res = curl_easy_perform(curl);
 	if (res != CURLE_OK)
 	  fprintf(stderr, "curl_easy_perform() failed: %s\n",
 			  curl_easy_strerror(res));
 	curl_easy_cleanup(curl);
+	//free(myurl);
   }
-  free(url);
+  
 }
 
 void print_menu(WINDOW *menu_win,int highlight,char **choices, int n_choices) {
