@@ -14,7 +14,6 @@
 void display_entry(char *arg1);
 void display_single_entry(char *arg1);
 void display_menu();
-void getFile(char* arg1);
 void print_menu(WINDOW *menu_win,int highlight,char **choices, int n_choices);
 void print_prompt(WINDOW *menu_win);
 void print_about(WINDOW *menu_win);
@@ -39,11 +38,11 @@ int main(int argc, char **argv) {
  *is run to grab the entry, and then you read the 
  *entry from the outfile using less*/
 void display_single_entry(char *arg1) {
-  getFile(arg1);
+  download_page(arg1);
 }
 
 void display_entry(char *arg1) {
-  getFile(arg1);
+  download_page(arg1);
   display_menu();
 }
 
@@ -124,16 +123,6 @@ void display_menu() {
   refresh();
   endwin();
   return;
-}
-
-void getFile(char* arg1) {
-  //int k = fork();
-  //if (k==0) {
-  //download the page
-  download_page(arg1);
-  //} else {
-  //	wait(0);
-  // }
 }
 
 void download_page(char * arg) {
