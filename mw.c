@@ -125,24 +125,92 @@ void display_menu() {
   return;
 }
 
-void download_page(char * arg) {
-  CURL *curl;
-  CURLcode res;
-  curl = curl_easy_init();
-  char* myurl = calloc(sizeof(char)*(strlen(arg) + 41),0);
-  if (curl) {
-	strcpy(myurl,"http://en.wikipedia.org/wiki/");
-	strcat(myurl,arg);
-	printf("the url is %s\n",myurl);
-	curl_easy_setopt(curl, CURLOPT_URL, myurl);
-	res = curl_easy_perform(curl);
-	if (res != CURLE_OK)
-	  fprintf(stderr, "curl_easy_perform() failed: %s\n",
-			  curl_easy_strerror(res));
-	curl_easy_cleanup(curl);
-	//free(myurl);
+struct MemoryStruct {
+  char *memory;
+  size_t size;
+};
+
+ 
+static size_t
+WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
+  size_t realsize = size * nmemb;
+  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+  
+  mem->memory = realloc(mem->memory, mem->size + realsize + 1);
+  if(mem->memory == NULL) {
+    /* out of memory! */ 
+    printf("not enough memory (realloc returned NULL)\n");
+    return 0;
   }
   
+  memcpy(&(mem->memory[mem->size]), contents, realsize);
+  mem->size += realsize;
+  mem->memory[mem->size] = 0;
+  
+  return realsize;
+}
+
+void download_page(char * arg) {
+  CURL *curl_handle;
+  CURLcode res;
+  
+  struct MemoryStruct chunk;
+ 
+  chunk.memory = malloc(1);  /* will be grown as needed by the realloc above */ 
+  chunk.size = 0;    /* no data at this point */ 
+  
+  curl_global_init(CURL_GLOBAL_ALL);
+  
+  /* init the curl session */ 
+  curl_handle = curl_easy_init();
+  
+  /* specify URL to get */
+  char url[128];
+  sprintf(url,"%s%s","http://en.wikipedia.org/wiki/",arg);
+  curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+ 
+  /* send all data to this function  */ 
+  curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+ 
+  /* we pass our 'chunk' struct to the callback function */ 
+  curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+ 
+  /* some servers don't like requests that are made without a user-agent
+     field, so we provide one */ 
+  curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+ 
+  /* get it! */ 
+  res = curl_easy_perform(curl_handle);
+ 
+  /* check for errors */ 
+  if(res != CURLE_OK) {
+    fprintf(stderr, "curl_easy_perform() failed: %s\n",
+            curl_easy_strerror(res));
+  }
+  else {
+    /*
+     * Now, our chunk.memory points to a memory block that is chunk.size
+     * bytes big and contains the remote file.
+     *
+     * Do something nice with it!
+     *
+     * You should be aware of the fact that at this point we might have an
+     * allocated data block, and nothing has yet deallocated that data. So when
+     * you're done with it, you should free() it as a nice application.
+     */ 
+	
+    printf("%lu bytes retrieved\n", (long)chunk.size);
+	printf("in mem: %s\n",chunk.memory);
+  }
+ 
+  /* cleanup curl stuff */ 
+  curl_easy_cleanup(curl_handle);
+ 
+  if(chunk.memory)
+    free(chunk.memory);
+
+  /* we're done with libcurl, so clean it up */ 
+  curl_global_cleanup();
 }
 
 void print_menu(WINDOW *menu_win,int highlight,char **choices, int n_choices) {
