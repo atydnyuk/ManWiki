@@ -253,7 +253,7 @@ void print_prompt(WINDOW *menu_win) {
 void print_about(WINDOW *menu_win)
 {
   wattron(menu_win,COLOR_PAIR(1));
-  mvwprintw(menu_win, 30, 40, "%s", "Manwiki was developed by Andrey Tydnyuk, Peter Appleby, Dan Pomeroy and Jeung Won Kim");
+  mvwprintw(menu_win, 30, 40, "%s", "Manwiki was developed by Andrey Tydnyuk");
   wattroff(menu_win,COLOR_PAIR(1));
   refresh();
   wgetch(menu_win);
