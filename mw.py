@@ -140,9 +140,10 @@ def print_prompt(screen):
 def display_entry(screen,term):
     url = "http://en.wikipedia.org/wiki/"+term
     page = html.fromstring(urllib.urlopen(url).read())
-    screen.clear()
-    screen.addstr(10,10,html.tostring(page)[0:30])
-    
+    curses.endwin()
+    print html.tostring(page)
+
+
 def print_usage():
     print "Usage of ManWiki:"
     print "      ./mw [search term]"
