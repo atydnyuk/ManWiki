@@ -12,12 +12,9 @@
 # requests you keep these two mentions when you reuse the code :-)
 # Basic code refactoring by Andrew Scheller
 
-
 import curses 
 from curses import panel
 import sys
-
-
 
 def main():
     if len(sys.argv) == 2:
@@ -33,7 +30,8 @@ def display_single_entry(argument):
     print argument
 
 menu_data = {
-    'title': "Main Menu", 'subtitle': "The Main Nav Menu for the program",
+    'title': "Main Menu", 
+    'subtitle': "The Main Nav Menu for the program",
     'options': [
         { 'title': "Lookup Term", 'command': '' },
         { 'title': "About", 'command': '' },
@@ -49,18 +47,18 @@ def runmenu(screen, menu, parent, n, h):
 
   optioncount = len(menu['options']) # how many options in this menu
 
-  pos=0 #pos is the zero-based index of the hightlighted menu option.  Every time runmenu is called, position returns to 0, when runmenu ends the position is returned and tells the program what option has been selected
+  pos=0 
   oldpos=None # used to prevent the screen being redrawn every time
-  x = None #control for while loop, let's you scroll through options until return key is pressed then returns pos to program
+  x = None 
   
   # Loop until return key is pressed
   while x !=ord('\n'):
     if pos != oldpos:
       oldpos = pos
-      screen.clear() #clears previous screen on key press and updates display based on pos
+      screen.clear() 
       screen.border(0)
-      screen.addstr(2,2, menu['title'], curses.A_STANDOUT) # Title for this menu
-      screen.addstr(4,2, menu['subtitle'], curses.A_BOLD) #Subtitle for this menu
+      screen.addstr(2,2, menu['title'], curses.A_STANDOUT) 
+      screen.addstr(4,2, menu['subtitle'], curses.A_BOLD) 
 
       # Display all the menu items, showing the 'pos' item highlighted
       for index in range(optioncount):
@@ -80,7 +78,7 @@ def runmenu(screen, menu, parent, n, h):
 
     # What is user input?
     if x >= ord('1') and x <= ord(str(optioncount+1)):
-      pos = x - ord('0') - 1 # convert keypress back to a number, then subtract 1 to get index
+      pos = x - ord('0') - 1 
     elif x == 258: # down arrow
       if pos < optioncount:
           pos += 1
@@ -112,8 +110,33 @@ def processmenu(menu, parent=None):
         getin = runmenu(screen, menu, parent, n, h)
         if getin == optioncount:
             exitmenu = True
+        elif getin == 0:
+            #this is the search
+            print_prompt(screen)
+        else:
+            print_about(screen)
 
+def print_about(screen):
+    screen.addstr(10,2, "Creator: Andrey Tydnyuk", curses.A_STANDOUT) 
+    screen.refresh()
+    search_term = screen.getch(10,20)
+    screen.addstr(10,2, "                                     ", 
+                  curses.A_STANDOUT) 
+    screen.refresh()
     
+def print_prompt(screen):
+    screen.addstr(10,2, "Search for term: ", curses.A_STANDOUT) 
+    screen.refresh()
+    curses.echo()
+    search_term = screen.getstr(10,20)
+    display_entry(search_term)
+    screen.addstr(10,2, "                                     ", 
+                  curses.A_STANDOUT) 
+    screen.refresh()
+
+def display_entry(term):
+    print term
+
 def print_usage():
     print "Usage of ManWiki:"
     print "      ./mw [search term]"
