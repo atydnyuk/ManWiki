@@ -15,6 +15,9 @@
 import curses 
 from curses import panel
 import sys
+import urllib
+from lxml import html
+
 
 def main():
     if len(sys.argv) == 2:
@@ -129,14 +132,17 @@ def print_prompt(screen):
     screen.refresh()
     curses.echo()
     search_term = screen.getstr(10,20)
-    display_entry(search_term)
+    display_entry(screen,search_term)
     screen.addstr(10,2, "                                     ", 
                   curses.A_STANDOUT) 
     screen.refresh()
 
-def display_entry(term):
-    print term
-
+def display_entry(screen,term):
+    url = "http://en.wikipedia.org/wiki/"+term
+    page = html.fromstring(urllib.urlopen(url).read())
+    screen.clear()
+    screen.addstr(10,10,html.tostring(page)[0:30])
+    
 def print_usage():
     print "Usage of ManWiki:"
     print "      ./mw [search term]"
