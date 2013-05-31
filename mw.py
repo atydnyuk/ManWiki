@@ -12,13 +12,9 @@
 # requests you keep these two mentions when you reuse the code :-)
 # Basic code refactoring by Andrew Scheller
 
-from bs4 import BeautifulSoup as bs
 import curses 
-from curses import panel
 import sys
-from urllib2 import urlopen
 import urllib
-from lxml import html
 import lxml.etree
 import urllib
 
@@ -151,9 +147,7 @@ def display_entry(screen,title):
     url = "http://en.wikipedia.org/w/api.php?%s" % qs
     tree = lxml.etree.parse(urllib.urlopen(url))
     revs = tree.xpath('//rev')
-    
     curses.endwin()
-    #print soup#html.tostring(page)
     print "The Wikipedia text for", title, "is"
     print revs[-1].text
 
