@@ -12,12 +12,17 @@
 # requests you keep these two mentions when you reuse the code :-)
 # Basic code refactoring by Andrew Scheller
 
+from bs4 import BeautifulSoup as bs
 import curses 
 from curses import panel
 import sys
+from urllib2 import urlopen
 import urllib
 from lxml import html
+import lxml.etree
+import urllib
 
+exitmenu = False
 
 def main():
     if len(sys.argv) == 2:
@@ -98,6 +103,7 @@ def runmenu(screen, menu, parent, n, h):
 
 # This function calls showmenu and then acts on the selected item
 def processmenu(menu, parent=None):
+    global exitmenu
     screen = curses.initscr()
     curses.noecho()
     curses.cbreak()
@@ -108,7 +114,6 @@ def processmenu(menu, parent=None):
     h = curses.color_pair(1) 
     n = curses.A_NORMAL 
     optioncount = len(menu['options'])
-    exitmenu = False
     while not exitmenu: #Loop until the user exits the menu
         getin = runmenu(screen, menu, parent, n, h)
         if getin == optioncount:
@@ -123,7 +128,7 @@ def print_about(screen):
     screen.addstr(10,2, "Creator: Andrey Tydnyuk", curses.A_STANDOUT) 
     screen.refresh()
     search_term = screen.getch(10,20)
-    screen.addstr(10,2, "                                     ", 
+    screen.addstr(10,2, "                       ", 
                   curses.A_STANDOUT) 
     screen.refresh()
     
@@ -133,15 +138,27 @@ def print_prompt(screen):
     curses.echo()
     search_term = screen.getstr(10,20)
     display_entry(screen,search_term)
-    screen.addstr(10,2, "                                     ", 
-                  curses.A_STANDOUT) 
-    screen.refresh()
+    #screen.addstr(10,2, "                       ", 
+    #curses.A_STANDOUT) 
+    #screen.refresh()
 
-def display_entry(screen,term):
-    url = "http://en.wikipedia.org/wiki/"+term
-    page = html.fromstring(urllib.urlopen(url).read())
+def display_entry(screen,title):
+    global exitmenu
+    print "about to display"
+    params = { "format":"xml", "action":"query", "prop":"revisions", "rvprop":"timestamp|user|comment|content" }
+    params["titles"] = "API|%s" % urllib.quote(title.encode("utf8"))
+    qs = "&".join("%s=%s" % (k, v)  for k, v in params.items())
+    url = "http://en.wikipedia.org/w/api.php?%s" % qs
+    tree = lxml.etree.parse(urllib.urlopen(url))
+    revs = tree.xpath('//rev')
+    
     curses.endwin()
-    print html.tostring(page)
+    #print soup#html.tostring(page)
+    print "The Wikipedia text for", title, "is"
+    print revs[-1].text
+
+    exitmenu = True
+    
 
 
 def print_usage():
