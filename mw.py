@@ -32,9 +32,6 @@ def main():
         print_usage()
         
 
-def display_single_entry(argument):
-    print argument
-
 menu_data = {
     'title': "Main Menu", 
     'subtitle': "The Main Nav Menu for the program",
@@ -140,20 +137,35 @@ def print_prompt(screen):
     #curses.A_STANDOUT) 
     #screen.refresh()
 
-def display_entry(screen,title):
+def display_single_entry(title):
     global exitmenu
-    result = ""
     wikipedia_utils = utils.swimport("wikipedia_utils")
     val = wikipedia_utils.GetWikipediaPage(title)
     if val == None:
         #we didnt get anything
-        result += "We could not find anything under that key word\n"
+        result = "We could not find anything under that key word"
     else:    
         res = wikipedia_utils.ParseTemplates(val["text"])
-        result += res["flattext"]    
+        result = res["flattext"]    
+            
+    print result
+    sys.stdout.flush()
+    exitmenu = True
+
+def display_entry(screen,title):
+    global exitmenu
+    wikipedia_utils = utils.swimport("wikipedia_utils")
+    val = wikipedia_utils.GetWikipediaPage(title)
+    if val == None:
+        #we didnt get anything
+        result = "We could not find anything under that key word"
+    else:    
+        res = wikipedia_utils.ParseTemplates(val["text"])
+        result = res["flattext"]    
             
     curses.endwin()
     print result
+    sys.stdout.flush()
     exitmenu = True
     
 
