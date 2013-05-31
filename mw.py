@@ -17,6 +17,8 @@ import sys
 import urllib
 import lxml.etree
 import urllib
+import wiki_utils
+import utils
 
 exitmenu = False
 
@@ -140,17 +142,13 @@ def print_prompt(screen):
 
 def display_entry(screen,title):
     global exitmenu
-    print "about to display"
-    params = { "format":"xml", "action":"query", "prop":"revisions", "rvprop":"timestamp|user|comment|content" }
-    params["titles"] = "API|%s" % urllib.quote(title.encode("utf8"))
-    qs = "&".join("%s=%s" % (k, v)  for k, v in params.items())
-    url = "http://en.wikipedia.org/w/api.php?%s" % qs
-    tree = lxml.etree.parse(urllib.urlopen(url))
-    revs = tree.xpath('//rev')
+    wikipedia_utils = utils.swimport("wikipedia_utils")
+    val = wikipedia_utils.GetWikipediaPage(title)
+    res = wikipedia_utils.ParseTemplates(val["text"])
+    
     curses.endwin()
-    print "The Wikipedia text for", title, "is"
-    print revs[-1].text
-
+    
+    print res["flattext"]    
     exitmenu = True
     
 
