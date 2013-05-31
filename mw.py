@@ -142,13 +142,18 @@ def print_prompt(screen):
 
 def display_entry(screen,title):
     global exitmenu
+    result = ""
     wikipedia_utils = utils.swimport("wikipedia_utils")
     val = wikipedia_utils.GetWikipediaPage(title)
-    res = wikipedia_utils.ParseTemplates(val["text"])
-    
+    if val == None:
+        #we didnt get anything
+        result += "We could not find anything under that key word\n"
+    else:    
+        res = wikipedia_utils.ParseTemplates(val["text"])
+        result += res["flattext"]    
+            
     curses.endwin()
-    
-    print res["flattext"]    
+    print result
     exitmenu = True
     
 
