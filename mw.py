@@ -122,7 +122,7 @@ def processmenu(menu, parent=None):
 def print_about(screen):
     screen.addstr(10,2, "Creator: Andrey Tydnyuk", curses.A_STANDOUT) 
     screen.refresh()
-    search_term = screen.getch(10,20)
+    screen.getch(10,20)
     screen.addstr(10,2, "                       ", 
                   curses.A_STANDOUT) 
     screen.refresh()
@@ -133,9 +133,9 @@ def print_prompt(screen):
     curses.echo()
     search_term = screen.getstr(10,20)
     display_entry(screen,search_term)
-    #screen.addstr(10,2, "                       ", 
-    #curses.A_STANDOUT) 
-    #screen.refresh()
+    screen.addstr(10,2, "                       ", 
+                  curses.A_STANDOUT) 
+    screen.refresh()
 
 def display_single_entry(title):
     global exitmenu
@@ -153,7 +153,9 @@ def display_single_entry(title):
     exitmenu = True
 
 def display_entry(screen,title):
-    global exitmenu
+    screen.erase()
+    screen.refresh()
+    screen.border(0)
     wikipedia_utils = utils.swimport("wikipedia_utils")
     val = wikipedia_utils.GetWikipediaPage(title)
     if val == None:
@@ -162,13 +164,9 @@ def display_entry(screen,title):
     else:    
         res = wikipedia_utils.ParseTemplates(val["text"])
         result = res["flattext"]    
-            
-    curses.endwin()
-    print result
-    sys.stdout.flush()
-    exitmenu = True
-    
-
+    screen.addstr(10,20,result[:50],curses.A_STANDOUT) 
+    screen.refresh()
+    screen.getch(10,20)
 
 def print_usage():
     print "Usage of ManWiki:"
