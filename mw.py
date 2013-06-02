@@ -19,7 +19,7 @@ import lxml.etree
 import urllib
 import wiki_utils
 import utils
-
+import re 
 exitmenu = False
 
 def main():
@@ -153,18 +153,24 @@ def display_single_entry(title):
     exitmenu = True
 
 def display_entry(screen,title):
-    screen.erase()
-    screen.refresh()
-    screen.border(0)
+    if (len(title)==0):
+        return
+    screen.addstr(10,10,"Loading.",curses.A_STANDOUT) 
     wikipedia_utils = utils.swimport("wikipedia_utils")
+    screen.addstr(10,10,"Loading..",curses.A_STANDOUT) 
     val = wikipedia_utils.GetWikipediaPage(title)
+    screen.addstr(10,10,"Loading...",curses.A_STANDOUT) 
     if val == None:
         #we didnt get anything
         result = "We could not find anything under that key word"
     else:    
         res = wikipedia_utils.ParseTemplates(val["text"])
         result = res["flattext"]    
-    screen.addstr(10,20,result[:500].encode('utf-8').decode('ascii','ignore').replace('\n\n','\n'),curses.A_STANDOUT) 
+    re.sub('<[^<]+?>', '', result)
+    screen.erase()
+    screen.refresh()
+    screen.border(0)
+    screen.addstr(0,0,result[:1500].encode('utf-8').decode('ascii','ignore').replace('\n\n','\n'),curses.A_STANDOUT) 
     screen.refresh()
     screen.getch(10,20)
 
