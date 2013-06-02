@@ -155,11 +155,14 @@ def display_single_entry(title):
 def display_entry(screen,title):
     if (len(title)==0):
         return
-    screen.addstr(10,10,"Loading.",curses.A_STANDOUT) 
+    screen.addstr(20,10,"Loading.",curses.A_STANDOUT)
+    screen.refresh()
     wikipedia_utils = utils.swimport("wikipedia_utils")
-    screen.addstr(10,10,"Loading..",curses.A_STANDOUT) 
+    screen.addstr(20,10,"Loading..",curses.A_STANDOUT)
+    screen.refresh()
     val = wikipedia_utils.GetWikipediaPage(title)
-    screen.addstr(10,10,"Loading...",curses.A_STANDOUT) 
+    screen.addstr(20,10,"Loading...",curses.A_STANDOUT)
+    screen.refresh()
     if val == None:
         #we didnt get anything
         result = "We could not find anything under that key word"
@@ -169,7 +172,6 @@ def display_entry(screen,title):
     re.sub('<[^<]+?>', '', result)
     screen.erase()
     screen.refresh()
-    screen.border(0)
     screen.addstr(0,0,result[:1500].encode('utf-8').decode('ascii','ignore').replace('\n\n','\n'),curses.A_STANDOUT) 
     screen.refresh()
     screen.getch(10,20)
