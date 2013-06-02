@@ -164,7 +164,7 @@ def display_entry(screen,title):
     else:    
         res = wikipedia_utils.ParseTemplates(val["text"])
         result = res["flattext"]    
-    screen.addstr(10,20,result[:50],curses.A_STANDOUT) 
+    screen.addstr(10,20,result[:500].encode('utf-8').decode('ascii','ignore').replace('\n\n','\n'),curses.A_STANDOUT) 
     screen.refresh()
     screen.getch(10,20)
 
