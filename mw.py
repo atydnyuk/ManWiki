@@ -20,6 +20,8 @@ import urllib
 import wiki_utils
 import utils
 import re 
+import os
+
 exitmenu = False
 
 def main():
@@ -31,7 +33,6 @@ def main():
     else:
         print_usage()
         
-
 menu_data = {
     'title': "Main Menu", 
     'subtitle': "The Main Nav Menu for the program",
@@ -60,6 +61,14 @@ def runmenu(screen, menu, parent, n, h):
       oldpos = pos
       screen.clear() 
       screen.border(0)
+      screen.refresh()
+
+      screen.addstr(10,10,str(curses.LINES))
+      screen.addstr(20,10,str(curses.COLS))
+      screen.refresh()
+      
+      
+
       screen.addstr(2,2, menu['title'], curses.A_STANDOUT) 
       screen.addstr(4,2, menu['subtitle'], curses.A_BOLD) 
 
@@ -68,12 +77,17 @@ def runmenu(screen, menu, parent, n, h):
         textstyle = n
         if pos==index:
           textstyle = h
-        screen.addstr(5+index,4, "%d - %s" % (index+1, menu['options'][index]['title']), textstyle)
+        screen.addstr(5+index,4, 
+                      "%d - %s" % 
+                      (index+1, menu['options'][index]['title']), 
+                      textstyle)
       # Now display Exit/Return at bottom of menu
       textstyle = n
       if pos==optioncount:
         textstyle = h
-      screen.addstr(5+optioncount,4, "%d - %s" % (optioncount+1, lastoption), textstyle)
+      screen.addstr(5+optioncount,4, 
+                    "%d - %s" % (optioncount+1, lastoption), 
+                    textstyle)
       screen.refresh()
       # finished updating screen
 
@@ -136,6 +150,7 @@ def print_prompt(screen):
     screen.addstr(10,2, "                       ", 
                   curses.A_STANDOUT) 
     screen.refresh()
+    curses.noecho()
 
 def display_single_entry(title):
     global exitmenu
@@ -174,7 +189,7 @@ def display_entry(screen,title):
     screen.refresh()
     screen.addstr(0,0,result[:1500].encode('utf-8').decode('ascii','ignore').replace('\n\n','\n'),curses.A_STANDOUT) 
     screen.refresh()
-    screen.getch(10,20)
+    screen.getch(0,0)
 
 def print_usage():
     print "Usage of ManWiki:"
