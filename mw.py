@@ -46,10 +46,15 @@ menu_data = {
     }
 
 def handle(*args):
-    curses.endwin()
+    global exitmenu
+    curses.flash()
+    curses.refresh()
     exitmenu = True
+    size = screen.getmaxyx()
+    #sys.stderr.write("Now %u x %u\n" % (size[1],size[0]))
     processmenu(menu_data)
-
+    
+    
 # This function displays the appropriate menu and returns the option selected
 def runmenu(menu, parent, n, h):
     global screen
