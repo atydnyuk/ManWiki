@@ -48,7 +48,7 @@ menu_data = {
 def handle(*args):
     global exitmenu
     curses.flash()
-    curses.refresh()
+    #curses.refresh()
     exitmenu = True
     size = screen.getmaxyx()
     #sys.stderr.write("Now %u x %u\n" % (size[1],size[0]))
